@@ -20,10 +20,11 @@ recession_periods = [("1990-07-01", "1991-03-01"), ("2001-03-01", "2001-11-01"),
                      ("2007-12-01", "2009-06-01"), ("2020-02-01", "2020-04-01")]
 
 app = dash.Dash(__name__)
-app.title = 'Labor Market Transitions'
 
 # Declare server for Render deployment. Needed for Procfile.
 server = app.server
+
+app.title = 'Labor Market Transitions'
 
 # Define the app layout
 app.layout = html.Div([
