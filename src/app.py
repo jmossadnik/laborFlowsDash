@@ -5,9 +5,13 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+#import pathlib
+
+#path = pathlib.Path(__file__).parent.resolve()
 
 # Load your data from "dta.csv"
-df = pd.read_csv('dta.csv')
+#df = pd.read_csv(r'{}/dta.csv'.format(path))
+df = pd.read_csv(r'dta.csv')
 df = df[df.year >= 1988] # missing months in 1985; hard to impute because it is the beginning
                          # of the timeseries, hence I cut the data for displaying
 
@@ -25,6 +29,7 @@ app = dash.Dash(__name__)
 server = app.server
 
 app.title = 'Labor Market Transitions'
+
 
 # Define the app layout
 app.layout = html.Div([
@@ -97,12 +102,12 @@ app.layout = html.Div([
 )
 
 def update_plot(selected_sexes, selected_ages, selected_timeseries, seasonal, flowrate):	
-    reference_data = df[(df['sex']=='t') & (df['age_group']=='16-64')].copy()
-    reference_data.sex = 't 16-64'
+    #reference_data = df[(df['sex']=='t') & (df['age_group']=='16-64')].copy()
+    #reference_data.sex = 't 16-64'
 
     filtered_data = df[(df['sex'].isin(selected_sexes)) & (df['age_group'].isin(selected_ages))].copy()
 
-    filtered_data = pd.concat([filtered_data, reference_data])
+    #filtered_data = pd.concat([filtered_data, reference_data])
 
     selected_timeseries_gross = ['rate_{}'.format(i) for i in selected_timeseries]
 
@@ -113,11 +118,13 @@ def update_plot(selected_sexes, selected_ages, selected_timeseries, seasonal, fl
 
     if seasonal == 1:
         selected_timeseries = [f'{c}_sa' for c in selected_timeseries]
-
+    
+    filtered_data['sex_age'] = filtered_data['sex'] + '_' + filtered_data['age_group']
+    
     if flowrate == 3:
-        filtered_data1 = filtered_data[['age_group', 'sex', 'date'] + [c for c in selected_timeseries if 'rate_' in c]]
+        filtered_data1 = filtered_data[['age_group', 'sex', 'date', 'sex_age'] + [c for c in selected_timeseries if 'rate_' in c]]
         filtered_data1['type'] = 'gross'
-        filtered_data2 = filtered_data[['age_group', 'sex', 'date'] + [c for c in selected_timeseries if 'rate_' not in c]]
+        filtered_data2 = filtered_data[['age_group', 'sex', 'date', 'sex_age'] + [c for c in selected_timeseries if 'rate_' not in c]]
         filtered_data2['type'] = 'instant'
 
         filtered_data1.columns = filtered_data2.keys()
@@ -128,7 +135,7 @@ def update_plot(selected_sexes, selected_ages, selected_timeseries, seasonal, fl
             filtered_data[filtered_data.type=='gross'],
             x='date',
             y=selected_timeseries,
-            color='sex',
+            color='sex_age',
             line_dash='variable',
             line_dash_map={'gross': 'dashed'},
             title='Labor Market Transitions',
@@ -138,7 +145,7 @@ def update_plot(selected_sexes, selected_ages, selected_timeseries, seasonal, fl
             filtered_data[filtered_data.type=='instant'],
             x='date',
             y=selected_timeseries,
-            color='sex',
+            color='sex_age',
             title='Labor Market Transitions'
         )
         fig3 = go.Figure(data=fig1.data + fig2.data)
@@ -151,7 +158,7 @@ def update_plot(selected_sexes, selected_ages, selected_timeseries, seasonal, fl
             filtered_data,
             x='date',
             y=selected_timeseries,
-            color='sex',
+            color='sex_age',
             title='Labor Market Transitions',
             labels={"sex": "sex", "age group": "age_group"}
         )
