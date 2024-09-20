@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 
 # Load your data from "dta.csv"
 #df = pd.read_csv(r'{}/dta.csv'.format(path))
-df = pd.read_csv(r'dta.csv')
+df = pd.read_csv('dta.csv')
 df = df[df.year >= 1988] # missing months in 1985; hard to impute because it is the beginning
                          # of the timeseries, hence I cut the data for displaying
 
@@ -101,13 +101,8 @@ app.layout = html.Div([
     Input('flowrate-dropdown', 'value')
 )
 
-def update_plot(selected_sexes, selected_ages, selected_timeseries, seasonal, flowrate):	
-    #reference_data = df[(df['sex']=='t') & (df['age_group']=='16-64')].copy()
-    #reference_data.sex = 't 16-64'
-
+def update_plot(selected_sexes, selected_ages, selected_timeseries, seasonal, flowrate):
     filtered_data = df[(df['sex'].isin(selected_sexes)) & (df['age_group'].isin(selected_ages))].copy()
-
-    #filtered_data = pd.concat([filtered_data, reference_data])
 
     selected_timeseries_gross = ['rate_{}'.format(i) for i in selected_timeseries]
 
